@@ -79,4 +79,3 @@ volumes:
   grafana-data:
   grafana-postgres-data:
   prometheus-data:
-  loki-data:
