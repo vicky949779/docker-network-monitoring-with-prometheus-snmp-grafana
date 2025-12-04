@@ -1,0 +1,73 @@
+global:
+  scrape_interval: 30s
+  scrape_timeout: 10s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # =========================================================
+  # JOB 1: CISCO ROUTERS -> Uses cisco_router module
+  # =========================================================
+  - job_name: 'snmp_cisco'
+    scrape_timeout: 25s
+    metrics_path: /snmp
+    params:
+      auth: [public_v2]
+      module: [cisco_router]
+    static_configs:
+      - targets:
+          - '192.100.100.1:161'
+          - '192.100.100.2:161'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 192.168.68.146:9116
+
+  # =========================================================
+  # JOB 2: ARISTA SPINE/LEAF -> Uses arista_device module
+  # =========================================================
+  - job_name: 'snmp_arista'
+    scrape_timeout: 25s
+    metrics_path: /snmp
+    params:
+      auth: [public_v2]
+      module: [arista_device]
+    static_configs:
+      - targets:
+          - '192.0.2.1:161'
+          - '192.0.2.2:161'
+          - '192.0.2.11:161'
+          - '192.0.2.12:161'
+          - '192.0.2.13:161'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 192.168.68.146:9116
+
+  # =========================================================
+  # JOB 3: VYOS FIREWALL -> Uses vyos_device module
+  # =========================================================
+  - job_name: 'snmp_vyos'
+    scrape_timeout: 25s
+    metrics_path: /snmp
+    params:
+      auth: [public_v2]
+      module: [vyos_device]
+    static_configs:
+      - targets:
+          - '192.100.100.3:161'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 192.168.68.146:9116
